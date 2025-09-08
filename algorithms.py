@@ -49,8 +49,10 @@ def rational_closure(input_mt, return_input = False, printing = True):
 # Traditional DRC (Disjunctive Rational Closure) Extension Algorithm
 
 def traditional_drc(input_mt, return_input = False):
+    # We first obtain the Rational Closure
     n, m, valuations_raw, valuations, ranks = rational_closure(input_mt, return_input = True)
 
+    # This is the same as max(L)
     highest_rank = -1
 
     for idx in range(len(ranks)):
@@ -70,11 +72,16 @@ def traditional_drc(input_mt, return_input = False):
             if valuations[i][cond_idx] == value and ranks[i] <= thresh:
                 ranks[i] = thresh + 1
 
+    # For every vectorised valuation, we take a look at the conditionals for which it has a 1, and then see for which of these conditionals
+    # the vectorised valuation has the lowest RC rank and a 1 for them.
     for idx in range(len(ranks)):
         limit = highest_rank
         for j in range(n):
+            # If the vectorised valuation has a 1 for conditional j and is "minimising" the Lower Rank conditional j, 
+            # we update its upper rank
             if(valuations[idx][j] == 1 and ranks[idx] == find_lowest_rank(j, 1)):
                 limit = min(limit, find_lowest_rank(j, 0) - 1)
+        # We make sure the Upper Rank is >= Lower Rank
         limit = max(limit, ranks[idx])
         ranks_right[idx] = limit
     if return_input == False:
